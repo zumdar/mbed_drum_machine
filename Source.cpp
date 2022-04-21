@@ -56,9 +56,10 @@ int TV2;
 
 
 
-void bitRead(this byte b, int bitNumber)
+uint8_t bitRead(uint8_t b, int bitNumber)
 {
-    var bit = (b & (1 << bitNumber - 1)) != 0;
+    uint8_t bit = (b & (1 << bitNumber - 1)) != 0;
+    return bit;
 }
 
 
