@@ -7,4 +7,3 @@ based on [juanito moore's easy ei8ht drum triggering code for arduino](https://g
 and 
 <br>
 [delptronics analog drum machine](https://delptronics.com/ldb1.php)
-ht
