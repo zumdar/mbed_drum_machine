@@ -16,6 +16,11 @@ DigitalIn BD_pb(p6);
 DigitalIn SD_pb(p7);
 DigitalIn CH_pb(p8);
 DigitalIn CP_pb(p9);
+uint8_t bitMask = 1;
+int seqLength = 8;
+int numDrums = 4;
+
+
 
 //uint8_t bitmask = 1;
 
@@ -43,13 +48,13 @@ public:
  
 //PinDetect recordButton(p25); 
 
-float timeIncrement=0.5;
-BusIn step(p6, p7, p8 , p9);
+float timeIncrement=1;
+BusIn step(p6, p7, p8 , p9);//button input for drums
 BusOut myleds(LED1, LED2, LED3); 
-vector<int> sequence; 
+int sequence[8]; 
 PinDetect recordButton(p30);
 PinDetect playButton(p29);
-Drum drums[4] = {p12, p13, p14, p15};
+Drum drums[4] = {p12, p13, p14, p15};//output for drums 
 
 // SPST Pushbutton debounced count demo using interrupts and callback
 // no external PullUp resistor needed
@@ -62,18 +67,66 @@ int volatile count=0;
 
 
 void playback(){
-    for(int i=0; i < sequence.size(); i++){
+    myled4=1;
+    int tempStep;
+    for (int i=0; i< seqLength; i++) {
+        for(int j=0; j<numDrums; j++) {
+            if (sequence[i] & bitMask == 1) {
+                drums[j].hit();
+            }
+        bitMask = bitMask << (j+1);    
+        }  
+    }
+    /*
+    for(int i=0; i < 8; i++){
+        sequence[i] = tempStep;
+        switch(tempStep) {
+            case 0x3: printf("Hello!\n"); break; // p5 and p6 are 1
+            case 0x8: printf("World!\n"); break; // p11 is 1
+        if (not tempStep[1]){
+            drums[1].hit();
+        }
+        if (not tempStep[2]){
+            drums[2].hit();
+        }
+        if (not tempStep[3]){
+            drums[3].hit();
+        }
+        wait(timeIncrement);
         
-        myleds=sequence[i];
+            
         
         
     }
-    sequence.clear();
+    */
+    myled4=0;
+    //sequence.clear();
     
 }
 
+
 void record(){
-    sequence.push_back(step);
+    myled3=1;
+    //int tempStep;
+    for(int i=0; i<8; i++){
+        
+        sequence[i] =step;
+        if (not step[0]){
+            drums[0].hit();
+        }
+        if (not step[1]){
+            drums[1].hit();
+        }
+        if (not step[2]){
+            drums[2].hit();
+        }
+        if (not step[3]){
+            drums[3].hit();
+        }
+        wait(timeIncrement);
+    }
+    myled3=0;
+    //sequence.push_back(step);
     //for(int i =0; i< 99; i++){
         //step=i;
         
@@ -84,7 +137,7 @@ void record(){
 
 // Callback routine is interrupt activated by a debounced pb hit
 void pb_hit_callback (void) {
-    playback();
+    //playback();
     myled2 = !myled2 ;
     //count++;
     //myled4 = count & 0x01;
@@ -94,16 +147,17 @@ void pb_hit_callback (void) {
 int main() {
 
     // Use internal pullup for pushbutton
-    //recordButton.mode(PullUp);
-    //.mode(PullUp);
+    recordButton.mode(PullUp);
+    playButton.mode(PullUp);
     // Delay for initial pullup to take effect
     wait(2);
+    printf("hello");
     // Setup Interrupt callback function for a pb hit
-    //recordButton.attach_deasserted(&record);
-    //playButton.attach_deasserted(&playback);
+    recordButton.attach_deasserted(&record);
+    playButton.attach_deasserted(&playback);
     // Start sampling pb input using interrupts
-    //recordButton.setSampleFrequency();
-    //playButton.setSampleFrequency();
+    recordButton.setSampleFrequency();
+    playButton.setSampleFrequency();
 
     //Blink myled in main routine forever while responding to pb changes
     // via interrupts that activate the callback counter function
@@ -131,7 +185,7 @@ int main() {
         
         }
         */
-        myled2 = !myled2;
+        myled = !myled;
         //step.read();
         
         //switch(step){
@@ -146,8 +200,8 @@ int main() {
         //wait(timeIncrement);
         
         //myled = !myled;
-        wait(timeIncrement);
-        wait(timeIncrement);
+        //wait(timeIncrement);
+        //wait(timeIncrement);
         /*
         for(int i=0; i<4; i++){
             drums[i].hit();
@@ -156,3 +210,4 @@ int main() {
     }
 
 }
+
