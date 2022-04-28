@@ -1,4 +1,8 @@
-# mbed_drum_machine
+# Mbed Bicycle Drum Machine 
+### ECE 4180 B
+William Kennedy, Patrick Hellman, Bhuiyan Rifat al hadi 
+
+Georgia Institute of Technology
 
 bicycle tempo sync'ed analog drum machine using the Mbed
 <br>
