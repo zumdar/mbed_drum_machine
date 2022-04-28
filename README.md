@@ -17,8 +17,6 @@ The goal of this project is to create a digital drum machine using circuit compo
 
 ![Final Product](https://github.com/zumdar/mbed_drum_machine/blob/main/3600%20project%20prototype%20.jpeg)
 
-With the advent of smartphones, smart assistants, and smart watches, the alarm clock has seemingly faded into the technology graveyard. However, our group believed that alarm clocks still have the potential to make a resurgence built around practical features. What if your alarm clock acted like your mom when you were younger, forcing you to get out of bed and not leaving you alone until you were **_really_** awake? This smart alarm clock allows you to set an alarm along with a code the night before. The next morning, you have to remember the code that you entered the night before in order to turn the alarm off. Otherwise, the clock will increase the stimulus by turning up the volume and increasing the LED blinking intensity. This keeps the user on his/her toes and is built around the core functionality of actually making sure they start their day right. Additionally, the clock is paired with a high resolution touchscreen display that shows at-a-glance current weather and world news. The alarm consists of an LED ring stimulus and music, which are detailed later on this page.
-
 ## Components
 ### AWS IoT Core
 Being an Internet of Things device, Amazon Web Services IoT Core is the backbone of how this alarm clock runs. IoT Core runs off of using MQTT as a communication protocol between devices. This project uses three “devices” which are communicating with one another: a JavaScript controlled GUI which displays to the user, a C script which controls the speakers and LED ring, and the user’s cell phone which is used to set the alarms.
