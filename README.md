@@ -18,8 +18,8 @@ The goal of this project is to create a digital drum machine using circuit compo
 ![Final Product](https://github.com/zumdar/mbed_drum_machine/blob/main/3600%20project%20prototype%20.jpeg)
 
 ## Components
-### AWS IoT Core
-Being an Internet of Things device, Amazon Web Services IoT Core is the backbone of how this alarm clock runs. IoT Core runs off of using MQTT as a communication protocol between devices. This project uses three “devices” which are communicating with one another: a JavaScript controlled GUI which displays to the user, a C script which controls the speakers and LED ring, and the user’s cell phone which is used to set the alarms.
+### Drum Circuits
+A selection of resistors, capacitors and gates are used to configure circuits that redproduce the sound of bass drum, snare drum, closed hi-hat drum and open hi-hat drum. They are activated by four pushbuttons, with one button to play each sound. There are also buttons for recording drum sequences, playing them back and a button for changing the tempo. 
 
 ### MQTT
 MQTT is a lightweight communication protocol which is commonly used in IoT devices. It is based off of the premise that many devices exist and do not communicate directly with one another. Instead, all communication is routed through a “broker.” Devices can subscribe to various “topics” which are used to differentiate what information they see/can send to other devices. Likewise, the devices can publish to various topics. Any device that is subscribed to a topic which has a message published to it will be able to see these messages. The broker in this case manages what devices are subscribed to which topics. When a device publishes a message to a specific topic, the broker handles this message and sends it to all other devices subscribed to the same topic. This protocol is fantastic for vast, complicated sensor networks with various functionalities and workgroups.
