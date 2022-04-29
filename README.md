@@ -51,3 +51,8 @@ After the user presses the tempo button four times, it records the average time 
 
 ## How to run it 
 Copy code from mbed_bicycle_drum_machine.cpp onto the main file for an empty mbed compiler project. Add Pindetech.h header file to the project and compile onto the mbed. 
+
+
+### Link to demo 
+https://drive.google.com/file/d/1pjsoj4m6NsC67ci9VwtBcKR3x_5BQM0i/view?usp=sharing
+
