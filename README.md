@@ -54,5 +54,5 @@ Copy code from mbed_bicycle_drum_machine.cpp onto the main file for an empty mbe
 
 
 ### Link to demo 
-https://drive.google.com/file/d/1pjsoj4m6NsC67ci9VwtBcKR3x_5BQM0i/view?usp=sharing
+![Demo](https://drive.google.com/file/d/1pjsoj4m6NsC67ci9VwtBcKR3x_5BQM0i/view?usp=sharing)
 
