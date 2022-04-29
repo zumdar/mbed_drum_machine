@@ -36,7 +36,10 @@ And here is the physical board with components
 
 ![PCB irl](https://github.com/zumdar/mbed_drum_machine/blob/main/ece%203600%20project%20PCB%20with%20components%20.jpeg)
 
-### MQTT
+### MBED 
+The mbed microcontroller was used to setup the buttons to activate the drum circuits and run the software for the overall system. It consists of a main while loop that checks if the buttons are being pressed to play the drum noises and additional code for several modes including a record mode, playback mode, and tempo mode. 
+
+
 MQTT is a lightweight communication protocol which is commonly used in IoT devices. It is based off of the premise that many devices exist and do not communicate directly with one another. Instead, all communication is routed through a “broker.” Devices can subscribe to various “topics” which are used to differentiate what information they see/can send to other devices. Likewise, the devices can publish to various topics. Any device that is subscribed to a topic which has a message published to it will be able to see these messages. The broker in this case manages what devices are subscribed to which topics. When a device publishes a message to a specific topic, the broker handles this message and sends it to all other devices subscribed to the same topic. This protocol is fantastic for vast, complicated sensor networks with various functionalities and workgroups.
 
 ### Our Device Topology
