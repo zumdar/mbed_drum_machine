@@ -19,9 +19,14 @@ The goal of this project is to create a digital drum machine using circuit compo
 
 ## Components
 ### Drum Circuits
-A selection of resistors, capacitors and gates are used to configure circuits that redproduce the sound of bass drum, snare drum, closed hi-hat drum and open hi-hat drum. They are activated by four pushbuttons, with one button to play each sound. There are also buttons for recording drum sequences, playing them back and a button for changing the tempo. 
+A selection of resistors, capacitors and gates are used to configure circuits that reproduce the sound of bass drum, snare drum, closed hi-hat drum and open hi-hat drum. 
 
-![Drum Machine Schematic](https://github.com/zumdar/mbed_drum_machine/blob/main/mbed_drum_machine_schematic.pdf)
+![Drums Schematic](https://github.com/zumdar/mbed_drum_machine/blob/main/drum%20circuits%20schematic.jpg)
+
+
+They are activated by four pushbuttons, with one button to play each sound. There are also buttons for recording drum sequences, playing them back and a button for changing the tempo. 
+
+![Drum Machine Schematic](https://github.com/zumdar/mbed_drum_machine/blob/main/system%20schematic.jpg)
 
 ### MQTT
 MQTT is a lightweight communication protocol which is commonly used in IoT devices. It is based off of the premise that many devices exist and do not communicate directly with one another. Instead, all communication is routed through a “broker.” Devices can subscribe to various “topics” which are used to differentiate what information they see/can send to other devices. Likewise, the devices can publish to various topics. Any device that is subscribed to a topic which has a message published to it will be able to see these messages. The broker in this case manages what devices are subscribed to which topics. When a device publishes a message to a specific topic, the broker handles this message and sends it to all other devices subscribed to the same topic. This protocol is fantastic for vast, complicated sensor networks with various functionalities and workgroups.
