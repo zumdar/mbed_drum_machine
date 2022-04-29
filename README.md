@@ -13,13 +13,13 @@ and
 [delptronics analog drum machine](https://delptronics.com/ldb1.php)
 
 ## Overview
-The goal of this project is to create a digital drum machine using circuit componenets and an Mbed microcontroller. The idea is to use basic componennts like resistors, capacitors and gates to create circuits that produce commone drumnoises and actiave those circuits using digitalout pins from the mbed.   
+The goal of this project is to create a digital drum machine using circuit components and an Mbed microcontroller. The idea is to use analog circuitry (op amps, transistors, diodes, transistors, resistors, capacitors) to create circuits that produce common drum sounds and activate those circuits using digitalOut pins from the mbed.   
 
 ![Final Product](https://github.com/zumdar/mbed_drum_machine/blob/main/3600%20project%20prototype%20.jpeg)
 
 ## Components
 ### Drum Circuits
-A selection of resistors, capacitors and gates are used to configure circuits that reproduce the sound of bass drum, snare drum, closed hi-hat drum and open hi-hat drum. 
+Analog circuitry is used to make circuits that reproduce the sound of bass drum, snare drum, closed hi-hat drum and open hi-hat drum. 
 
 ![Drums Schematic](https://github.com/zumdar/mbed_drum_machine/blob/main/drum%20circuits%20schematic.jpg)
 
@@ -40,10 +40,10 @@ And here is the physical board with components
 The mbed microcontroller was used to setup the buttons to activate the drum circuits and run the software for the overall system. It consists of a main while loop that checks if the buttons are being pressed to play the drum noises and additional code for several modes including a record mode, playback mode, and tempo mode. 
 
 ### RecordMode 
-After the record button is pressed, the mbed records the drums being hit by the user and begins overdubbing (playing them back in sequence) after the first drum is hit. It is able to record up to one hit per drum during each set time period called a step(set by the tempo, 0.5 seconds by default). And it records a number of steps equal to the sequence length(currently 8) before it resets to the beginning of the sequence and overdubbs the sequence recorded while recording any beats to add to the sequence. Hitting the record button again leaves the RecordMode 
+After the record button is pressed, the mbed records the drums being hit by the user and begins overdubbing (playing them back in sequence) after the first drum is hit. It is able to record up to one hit per drum during each set time period called a step(set by the tempo, 0.5 seconds by default). And it records a number of steps equal to the sequence length(currently 8) before it resets to the beginning of the sequence and overdubs the sequence recorded while recording any beats to add to the sequence. Hitting the record button again leaves the RecordMode 
 
 ### PlaybackMode 
-After the playback button is pressed, the mbed continiously loops through the last sequence recorded. Normal drum functionality is preserved so the user can still make new drum sounds to produce music while the sequence is being played back
+After the playback button is pressed, the mbed continuously loops through the last sequence recorded. Normal drum functionality is preserved so the user can still make new drum sounds to produce music while the sequence is being played back
 
 ### TapTempoMode
 After the user presses the tempo button four times, it records the average time between each press and uses that as the new time increment allocated for each step. This means if the PlaybackMode is on while the tap button is pressed, it averages it with the playback tempo and plays back the recorded sequence faster or slower based on if the user taps faster or slower than the current tempo. If the user keeps pressing the tempo button, the program adjusts the tempo accordingly.
