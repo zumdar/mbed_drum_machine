@@ -36,8 +36,17 @@ And here is the physical board with components
 
 ![PCB irl](https://github.com/zumdar/mbed_drum_machine/blob/main/ece%203600%20project%20PCB%20with%20components%20.jpeg)
 
-### MBED 
+## MBED 
 The mbed microcontroller was used to setup the buttons to activate the drum circuits and run the software for the overall system. It consists of a main while loop that checks if the buttons are being pressed to play the drum noises and additional code for several modes including a record mode, playback mode, and tempo mode. 
+
+### RecordMode 
+After the record button is pressed, the mbed records the drums being hit by the user and begins overdubbing (playing them back in sequence) after the first drum is hit. It is able to record up to one hit per drum during each set time period called a step(set by the tempo, 0.5 seconds by default). And it records a number of steps equal to the sequence length(currently 8) before it resets to the beginning of the sequence and overdubbs the sequence recorded while recording any beats to add to the sequence. Hitting the record button again leaves the RecordMode 
+
+### PlaybackMode 
+After the playback button is pressed, the mbed continiously loops through the last sequence recorded. Normal drum functionality is preserved so the user can still make new drum sounds to produce music while the sequence is being played back
+
+### TapTempoMode
+After the user presses the tempo button four times, it records the average time between each press and uses that as the new time increment allocated for each step. This means if the PlaybackMode is on while the tap button is pressed, it averages it with the playback tempo and plays back the recorded dequence faster or slower based on if the user taps faster or slower than the current tempo. If the user keeps pressing the tempo button, the program adjusts the tempo accordingly.  
 
 
 MQTT is a lightweight communication protocol which is commonly used in IoT devices. It is based off of the premise that many devices exist and do not communicate directly with one another. Instead, all communication is routed through a “broker.” Devices can subscribe to various “topics” which are used to differentiate what information they see/can send to other devices. Likewise, the devices can publish to various topics. Any device that is subscribed to a topic which has a message published to it will be able to see these messages. The broker in this case manages what devices are subscribed to which topics. When a device publishes a message to a specific topic, the broker handles this message and sends it to all other devices subscribed to the same topic. This protocol is fantastic for vast, complicated sensor networks with various functionalities and workgroups.
