@@ -1,8 +1,9 @@
-#include "mbed.h"
 #include "PinDetect.h"
+#include "mbed.h"
 #include <vector>
 // must import Cookbook PinDetct library into project
 // URL: http://mbed.org/users/AjK/libraries/PinDetect/lkyxpw
+// https://github.com/ozerik/EasyEi8ht used as reference
 
 DigitalOut myled(LED1);
 DigitalOut myled2(LED2);
@@ -12,341 +13,320 @@ DigitalOut BD_trig(p12);
 DigitalOut SD_trig(p13);
 DigitalOut CH_trig(p14);
 DigitalOut CP_trig(p15);
-//DigitalIn BD_pb(p6);
-//DigitalIn SD_pb(p7);
-//DigitalIn CH_pb(p8);
-//DigitalIn CP_pb(p9);
-uint8_t bitMask = 1;
+// DigitalIn BD_pb(p6);
+// DigitalIn SD_pb(p7);
+// DigitalIn CH_pb(p8);
+// DigitalIn CP_pb(p9);
+int volatile bitMask = 1;
 int seqLength = 8;
 int numDrums = 4;
 bool volatile recordMode = false;
-bool volatile playMode = true; 
+bool volatile playMode = false;
+
 int volatile stepCount = 0;
 Timer timer;
 Timer timer2;
-int previousStepCountBD, previousStepCountSD, previousStepCountCH, previousStepCountCP;
-
-
-
-
-//uint8_t bitmask = 1;
-
-//for (int i = 0; i < numberOfSteps; i++) {
-//for(int j = 0; j < numberofDrums; j++) {
-//if (sequence[i] & bitmask == true) drum[j].hit();
-//bitmask << (j+1)
-//}
-//}
+int previousStepCountBD, previousStepCountSD, previousStepCountCH,
+    previousStepCountCP;
 
 class Drum {
 public:
-    Drum(PinName p) : x(p) {}
-    
-    void off() { x = 0; }
-    void hit() { 
-        x = 1;
-        t.attach(this, &Drum::off, 0.01);
-        //printf("drum hit");
-    }
-        
-    DigitalOut x;
-    Timeout t;
-};
- 
- 
-//PinDetect recordButton(p25); 
+  Drum(PinName p) : x(p) {}
 
-float timeIncrement=1;
-BusIn step(p6, p7, p8 , p9);//button input for drums
-BusOut myleds(LED1, LED2, LED3); 
-int sequence[8]={0,0,0,0,0,0,0,0} ;
+  void off() { x = 0; }
+  void hit() {
+    x = 1;
+    t.attach(this, &Drum::off, 0.005);
+    // printf("drum hit");
+  }
+
+  DigitalOut x;
+  Timeout t;
+};
+
+float timeIncrement = 0.3;
+BusIn step(p6, p7, p8, p9); // button input for drums
+BusOut myleds(LED1, LED2, LED3);
+int sequence[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+PinDetect pbTap(p5);
 PinDetect BD_pb(p6);
 PinDetect SD_pb(p7);
 PinDetect CH_pb(p8);
 PinDetect CP_pb(p9);
 PinDetect recordButton(p30);
 PinDetect playButton(p29);
-
-Drum drums[4] = {p12, p13, p14, p15};//output for drums 
-
-// SPST Pushbutton debounced count demo using interrupts and callback
-// no external PullUp resistor needed
-// Pushbutton from P8 to GND.
-// A pb hit generates an interrupt and activates the callback function
-// after the switch is debounced
-
+Drum drums[4] = {p12, p13, p14, p15}; // output for drums
 // Global count variable
-int volatile count=0;
+int volatile count = 0;
+unsigned long quarterNote = 500; // sets the default internal tempo, quarter notes, in milliseconds. 500 = 120BPM
+uint16_t sixteenthNote;
+unsigned long tapDebounce = 0;
+int tapTracker = -5;
+unsigned long sixteenth;
+unsigned long newTap;
+unsigned long oldTap;
+unsigned long tapAvg;
+unsigned long taps[21];
+uint32_t milli; 
+uint32_t micro;
+bool startRhythm = false;
 
 
-void playback(){
-    playMode= !playMode;
+
+void playback() { playMode = !playMode; }
+void record(void) { recordMode = !recordMode; }
+void tapMode(uint32_t millis, uint32_t micros);
+
+
+
+void BD_pb_hit_callback(void) {
+  drums[0].hit();
+  if (recordMode) {
+    if ((sequence[stepCount] & 1) == 0) {
+      sequence[stepCount] += 1;
+    }
+  }
+      
+      
 }
 
-void record(void){
-    recordMode = !recordMode;
+void SD_pb_hit_callback(void) {
+  drums[1].hit();
+  if (recordMode) {
+    if ((sequence[stepCount] & 2) == 0) {
+      sequence[stepCount] += 2;
+    }
     
-}
-/*
-        
-        while( j <timeIncrement){
-            if (not step[0]){
-                drums[0].hit();
-                sequence[i] = sequence[i] + 1;
-                i++;
-                continue;
-            
-            }
-            if (not step[1]){
-                drums[1].hit();
-                sequence[i] = sequence[i] + 1;
-            continue;
-            }
-            if (not step[2]){
-            drums[2].hit();
-            i++;
-            continue;
-            }
-            if (not step[3]){
-            drums[3].hit();
-            i++;
-            continue;
-            
-            }
-        recordMode = false;
-            
-    }
-     
-    while( i<8){
-        //printf("recording \n");
-        //sequence[i] =step;
-        //printf("step = %i", sequence[i], "\n");
-        if (not step[0]){
-            drums[0].hit();
-            i++;
-            continue;
-            
-        }
-        if (not step[1]){
-            drums[1].hit();
-            i++;
-            continue;
-        }
-        if (not step[2]){
-            drums[2].hit();
-            i++;
-            continue;
-        }
-        if (not step[3]){
-            drums[3].hit();
-            i++;
-            continue;
-        //continue;
-        }
-        //wait(timeI
-
-*/
-// Callback routine is interrupt activated by a debounced pb hit
-void BD_pb_hit_callback (void) {
-    printf("drum 0");
-    drums[0].hit();
-//    int currentStepCount = stepCount;
-//    if (recordMode && currentStepCount != previousStepCountBD){
-//        sequence[stepCount] += 1;
-//    }
-//    previousStepCountBD = stepCount; 
-    if(recordMode){
-        if ( (sequence[stepCount] & 1) == 0) {
-            sequence[stepCount] += 1;
-        }
-    }
-    //playback();
-    //myled2 = !myled2 ;
-    //count++;
-    //myled4 = count & 0x01;
-    //myled3 = (count & 0x02)>>1;
-    //myled2 = (count & 0x04)>>2;
+   
+  }
+ 
 }
 
-void SD_pb_hit_callback (void) {;
-    drums[1].hit();
- //   int currentStepCount = stepCount;
-//    if (recordMode && currentStepCount != previousStepCountSD){
-//        sequence[stepCount] += 2;
-//    }
-//    previousStepCountSD = stepCount; 
-    if(recordMode){
-        if ( (sequence[stepCount] & 2) == 0) {
-            sequence[stepCount] += 2;
-        }
-        //drums[1].hit();
+void CH_pb_hit_callback(void) {
+  drums[2].hit();
+  if (recordMode) {
+    if ((sequence[stepCount] & 4) == 0) {
+      sequence[stepCount] += 4;
     }
-    //count++;
-    //myled4 = count & 0x01;
-    //myled3 = (count & 0x02)>>1;
-    //myled2 = (count & 0x04)>>2;
+  }
+
 }
 
-void CH_pb_hit_callback (void) {
-    drums[2].hit();
-//    int currentStepCount = stepCount;
-//    if (recordMode && currentStepCount != previousStepCountCH){
-//        sequence[stepCount] += 4;
-//    }
-//    previousStepCountCH = stepCount; 
-//    
-    if(recordMode){
-        if ( (sequence[stepCount] & 4) == 0) {
-            sequence[stepCount] += 4;
-        }
-        //drums[2].hit();
+void CP_pb_hit_callback(void) {
+  drums[3].hit();
+  if (recordMode ) {
+    if ((sequence[stepCount] & 8) == 0) {
+      sequence[stepCount] += 8;
     }
-    //count++;
-    //myled4 = count & 0x01;
-    //myled3 = (count & 0x02)>>1;
-    //myled2 = (count & 0x04)>>2;
+  }
+ 
 }
 
-void CP_pb_hit_callback (void) {
-    drums[3].hit();
-//    int currentStepCount = stepCount;
-//    if (recordMode && currentStepCount != previousStepCountCP){
-//        sequence[stepCount] += 8;
-//    }
-//    previousStepCountCP = stepCount; 
-    if(recordMode){
-        if ( (sequence[stepCount] & 8) == 0) {
-            sequence[stepCount] += 8;
-        }
-        //drums[3].hit();
-        
-    }
-    //count++;
-    //myled4 = count & 0x01;
-    //myled3 = (count & 0x02)>>1;
-    //myled2 = (count & 0x04)>>2;
+void pb_tap_hit_callback (void)
+{
+    tapMode(milli, micro);
+     //printf("%d  ", quarterNote);
 }
+
 int main() {
+  // Use internal pullup for pushbutton
+  recordButton.mode(PullUp);
+  playButton.mode(PullUp);
+  // Delay for initial pullup to take effect
+  wait(2);
+  printf("hello \n");
+  // Setup Interrupt callback function for a pb hit
+  recordButton.attach_deasserted(&record);
+  playButton.attach_deasserted(&playback);
+  BD_pb.attach_deasserted(&BD_pb_hit_callback);
+  SD_pb.attach_deasserted(&SD_pb_hit_callback);
+  CH_pb.attach_deasserted(&CH_pb_hit_callback);
+  CP_pb.attach_deasserted(&CP_pb_hit_callback);
 
-    // Use internal pullup for pushbutton
-    recordButton.mode(PullUp);
-    playButton.mode(PullUp);
-    // Delay for initial pullup to take effect
-    wait(2);
-    printf("hello \n");
-    // Setup Interrupt callback function for a pb hit
-    recordButton.attach_deasserted(&record);
-    playButton.attach_deasserted(&playback);
-    BD_pb.attach_deasserted(&BD_pb_hit_callback);
-    SD_pb.attach_deasserted(&SD_pb_hit_callback);
-    CH_pb.attach_deasserted(&CH_pb_hit_callback);
-    CP_pb.attach_deasserted(&CP_pb_hit_callback);
+  // Start sampling pb input using interrupts
+  recordButton.setSampleFrequency();
+  playButton.setSampleFrequency();
+  BD_pb.setSampleFrequency();
+  SD_pb.setSampleFrequency();
+  CH_pb.setSampleFrequency();
+  CP_pb.setSampleFrequency();
+  
+  clock_t x_startTime,x_countTime;
     
-    // Start sampling pb input using interrupts
-    recordButton.setSampleFrequency();
-    playButton.setSampleFrequency();
-    BD_pb.setSampleFrequency();
-    SD_pb.setSampleFrequency();
-    CH_pb.setSampleFrequency();
-    CP_pb.setSampleFrequency();
-
-    //Blink myled in main routine forever while responding to pb changes
-    // via interrupts that activate the callback counter function
-    while (1) {
-        if (recordMode) {
-            stepCount = 0;
-            myled3=1;
-            timer.start();
-            while(1){
-                if (timer > timeIncrement) {
-                    if (stepCount == (seqLength-1) ) {
-                        stepCount = 0;
-                        } else { 
-                        stepCount++;
-                        }
-                    timer.reset();
-                    printf("sequence step value is: %d \n", sequence[stepCount]);
-                }
-                if (!recordMode) break;
+    
+    pbTap.mode(PullUp);
+    wait(.01);
+    pbTap.attach_deasserted(&pb_tap_hit_callback);
+    pbTap.setSampleFrequency();
+    
+    x_startTime=clock();
+    
+    
+  while (1) {
+    
+   x_countTime=clock(); // update timer difference
+   milli = (x_countTime-x_startTime)* 10;
+   micro = milli * 1000;
+   //pc.printf("%d  ", micro);
+   /*if (startRhythm) //&& (x_countTime%quarterNote == 0))
+   {
+      printf("hello");
+      for (int j = 0; j < numDrums; j++) {
+            int tempbits = sequence[stepCount];
+            if (((tempbits >> j) & 0x01) == (1)) {
+              drums[j].hit();
+              printf("hit the drum : %d \n", j);
             }
-            myled3=0;
-        //////PLAYMODE/////////
-        if (playMode){
-            stepCount = 0;
-            myled4=1;
-            timer2.start();
-            while(1){
-                if (timer2 > timeIncrement) {
-                    if (stepCount == (seqLength-1) ) {
-                        stepCount = 0;
-                        } else { 
-                        stepCount++;
-                        for (int j = 0; j < numDrums ; j++) {
-                            if ((sequence[stepCount] & bitMask) == 1) {
-//                          printf("play drum %d \n", j);
-                            drums[j].hit();
-                            }
-                        bitMask = bitMask << (j+1);  
-                        }
-                    }    
-                    timer.reset();
-                    printf("playmode sequence step value is: %d \n", sequence[stepCount]);
-                }
-            if (!playMode) break;
+        }
+      wait(quarterNote * .000001);
+    }*/
+    
+    
+    if (recordMode) {
+      stepCount = 0;
+      myled3 = 1;
+      timer.start();
+      while (1) {
+     x_countTime=clock(); // update timer difference
+      milli = (x_countTime-x_startTime)* 10;
+      micro = milli * 1000;
+       if (startRhythm)
+        {
+            timeIncrement = quarterNote*0.000001;
+        }
+        if (timer > timeIncrement) {
+          for (int j = 0; j < numDrums; j++) {
+            int tempbits = sequence[stepCount];
+            if (((tempbits >> j) & 0x01) == (1)) {
+              drums[j].hit();
+              printf("hit the drum : %d \n", j);
             }
-            myled3=0;
-        }   
-    } 
+          }
+          if (stepCount == (seqLength - 1)) {
+            stepCount = 0;
+          } else {
+            stepCount++;
+          }
+          timer.reset();
+          printf("sequence step value is: %d \n", sequence[stepCount]);
+        }
+        if (!recordMode)
+          break;
+      }
+      myled3 = 0;
+    }
+    //////PLAYMODE/////////
+    if (playMode) {
+      
+      stepCount = 0;
+      myled4 = 1;
+      timer2.start();
+      while (1) {
+      x_countTime=clock(); // update timer difference
+      milli = (x_countTime-x_startTime)* 10;
+      micro = milli * 1000;
+       if (startRhythm)
+        {
+            timeIncrement = quarterNote*0.000001;
+        }
+        bitMask = 1;
+        if (timer2 > timeIncrement) {
+          for (int j = 0; j < numDrums; j++) {
+            int tempbits = sequence[stepCount];
+            if (((tempbits >> j) & 0x01) == (1)) {
+              drums[j].hit();
+              printf("hit the drum : %d \n", j);
+            }
+          }
+          if (stepCount == (seqLength - 1)) {
+            stepCount = 0;
+          } else {
+            stepCount++;
+          }
+          timer2.reset();
+          
+          printf("playmode sequence step value is: %d \n", sequence[stepCount]);
+        }
+        if (!playMode)
+          break;
+      }
+      myled4 = 0;
+    }
+  }
 }
-}  
-        //printf("%s \n", step);
-        /*
-        if (not step[0]){
-            drums[0].hit();
-            printf("%c \n", step);
-        }
-        if (not step[1]){
-            drums[1].hit();
-        }
-        if (not step[2]){
-            drums[2].hit();
-        }
-        if (not step[3]){
-            drums[3].hit();
-        }
-        */
-        //wait(timeIncrement);
-        /*
-        for(int i=0; i<4; i++){
-            if(step[i]){
-                drums[i].hit();
-            }
-            //drums[i%4].hit();
-            wait(timeIncrement);
-        
-        }
-        */
-        //step.read();
-        
-        //switch(step){
-            //case 0x0: myled3 = !myled3; break;
-            //case 0x1: drums[0].hit(); break;
-            //case 0x2: drums[1].hit(); break;
-            //case 0x8: drums[2].hit(); break;
-        
-        //}
-        
-        //sequence.append(step);
-        //wait(timeIncrement);
-        
-        //myled = !myled;
-        //wait(timeIncrement);
-        //wait(timeIncrement);
-        /*
-        for(int i=0; i<4; i++){
-            drums[i].hit();
-            wait(timeIncrement);
-        }*/
+
+
+void tapMode(uint32_t millis, uint32_t micros) 
+{
+  if (millis - tapDebounce > 1500) 
+  {  // first tap after 1.5 seconds
+    tapTracker = -5;
+    oldTap = micros;
+    tapAvg = 0;
+     //pc.printf("%d  ", tapTracker);
+    //myled1 = tapTracker;
+  
+  } 
+  else if (tapTracker < 0) 
+  {          // some subsequent taps
+    newTap = micros;
+    unsigned long TA = newTap - oldTap;
+    if ((TA > 200000) && (TA < 1200000)) 
+    {  // limits BPM inputs to between 300bpm and 50 bpm
+      tapAvg += newTap - oldTap;
+      //myled1 = tapTracker;
+     // pc.printf("tapTracker: %d" ,tapTracker);
+    } 
+    else 
+    {
+        tapTracker--;  
+    }
+    oldTap = newTap;
+    if (tapTracker == -1) 
+    {         // fills the array of numbers to be averaged with the calculated average so far
+      startRhythm = true; 
+      tapAvg = tapAvg * 0.25;
+      for (int i = 0; i < 20; i++) //changed byte to int
+      {
+        taps[i] = tapAvg;
+      }
+      //myled2 = tapAvg;
+    // pc.printf("tap Avg: %d", tapAvg);
+      quarterNote = tapAvg;
+      tapAvg = 0;
+     }
+   } 
+  else 
+  {              // regular taps, Each tap increases the accuracy of the average, up to 20 taps
+    newTap = micros;
+    taps[tapTracker] = newTap - oldTap;
+    oldTap = newTap;
+    for (int i = 0; i < 20; i++)  // changed byte to int
+    {
+      if (taps[i] > ((sixteenthNote * 2) + 70000) && (taps[i] < (quarterNote * 2) - 70000)) 
+      {
+        tapAvg += taps[i];
+      } 
+      else 
+      {
+        tapAvg += taps[i + 1];
+      }
+    }
+    quarterNote = (tapAvg + 240) * 0.05;
+    
+    //myled2 = tapAvg;
+   // pc.printf("tap Avg: %d", tapAvg);
+    tapAvg = 0;
+   }
+   
+  tapDebounce = millis;
+  tapTracker++;
+  
+  if (tapTracker >= 20)
+  {
+       tapTracker = 0;
+  }
+}
 
 
 
