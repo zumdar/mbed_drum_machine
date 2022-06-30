@@ -12,6 +12,8 @@ and
 <br>
 [delptronics analog drum machine] (analog drum circuitry) (https://delptronics.com/ldb1.php)
 
+![graduation](https://github.com/zumdar/mbed_drum_machine/blob/main/graduation.jpg)
+
 ## Overview
 The goal of this project is to create a digital drum machine using circuit components and an Mbed microcontroller. The idea is to use analog circuitry (op amps, transistors, diodes, transistors, resistors, capacitors) to create circuits that produce common drum sounds and activate those circuits using digitalOut pins from the mbed.   
 
@@ -34,7 +36,7 @@ Additionally, A PCB board was printed for the entire system
 
 And here is the physical board with components 
 
-![PCB irl](https://github.com/zumdar/mbed_drum_machine/blob/main/ece%203600%20project%20PCB%20with%20components%20.jpeg)
+![PCB irl](https://github.com/zumdar/mbed_drum_machine/blob/main/populatedBoard.jpg)
 
 ## MBED 
 The mbed microcontroller was used to setup the buttons to activate the drum circuits and run the software for the overall system. It consists of a main while loop that checks if the buttons are being pressed to play the drum noises and additional code for several modes including a record mode, playback mode, and tempo mode. 
