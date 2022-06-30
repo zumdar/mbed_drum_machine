@@ -14,6 +14,8 @@ and
 
 ![graduation](https://github.com/zumdar/mbed_drum_machine/blob/main/graduation.jpg)
 
+![birney](https://github.com/zumdar/mbed_drum_machine/blob/main/birneyBike.JPG)
+
 ## Overview
 The goal of this project is to create a digital drum machine using circuit components and an Mbed microcontroller. The idea is to use analog circuitry (op amps, transistors, diodes, transistors, resistors, capacitors) to create circuits that produce common drum sounds and activate those circuits using digitalOut pins from the mbed.   
 
